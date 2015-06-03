@@ -96,17 +96,17 @@ ttt = TicTacToe.new human, computer
 
 until ttt.over?
   puts ttt.display_board
-  print "#{ttt.current_player} - where would you like to play? "
+  print "#{ttt.current_player.name} - where would you like to play? "
 
   move = gets.chomp
   ttt.take_move move
 end
 
 if ttt.winner == :x
-  puts "#{human.name} wins!"
+  puts "#{ttt.winner} wins!"
   human.stats.wins += 1
 elsif ttt.winner == :o
-  puts "#{computer.name} wins! You lose!"
+  puts "#{ttt.winner} wins! You lose!"
   human.stats.losses += 1
 else  
   puts "It's a draw"
