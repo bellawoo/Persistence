@@ -1,21 +1,27 @@
-class Player
-  attr_reader :symbol, :name
+require './db/setup'
+require './lib/all'
 
-  def initialize symbol
-    @symbol = symbol
-    print "Player #{symbol}! What is your name? "
-    @name = gets.chomp
-  end
-end
+# class Player
+#   attr_reader :symbol, :name
+
+#   def initialize symbol
+#     @symbol = symbol
+#     print "Player #{symbol}! What is your name? "
+#     @name = gets.chomp
+#   end
+# end
 
 class TicTacToe
   attr_reader :current_player
 
-  def initialize
-    @players = [Player.new(:x), Player.new(:o)]
+  def initialize player_x, player_o
+    # @players = [Player.new(:x), Player.new(:o)]
+    @player_x = player_x
+    @player_o = player_o
     @board   = Array.new 9
 
-    @current_player = @players.first
+    @current_player = @player_x
+    @current_symbol = :x
   end
 
   def over?
@@ -31,7 +37,8 @@ class TicTacToe
   end
 
   def record_move position
-    @board[position.to_i - 1] = @current_player.symbol
+    @board[position.to_i - 1] = @current_symbol
+
   end
 
   def lines
@@ -73,27 +80,38 @@ class TicTacToe
   end
 
   def toggle_players
-    if @current_player == @players.first
-      @current_player = @players.last
+    if @current_player == @player_x
+      @current_symbol = :o
+      @current_player = @player_o
     else
-      @current_player = @players.first
+      @current_player = @player_x
+      @current_symbol = :x
     end
   end
 end
 
-
-ttt = TicTacToe.new
+human = User.make_user
+computer = User.make_user
+ttt = TicTacToe.new human, computer
 
 until ttt.over?
   puts ttt.display_board
-  print "#{ttt.current_player.name} - where would you like to play? "
+  print "#{ttt.current_player} - where would you like to play? "
 
   move = gets.chomp
   ttt.take_move move
 end
 
-if ttt.winner
-  puts "#{ttt.winner} wins!"
-else
+if ttt.winner == :x
+  puts "#{human.name} wins!"
+  human.stats.wins += 1
+elsif ttt.winner == :o
+  puts "#{computer.name} wins! You lose!"
+  human.stats.losses += 1
+else  
   puts "It's a draw"
+  human.stats.draws += 1
 end
+human.save
+
+puts "You've won #{player.stats.wins} games, lost #{player.stats.losses} games, and tied with the computer #{human.stats.draws} times."
