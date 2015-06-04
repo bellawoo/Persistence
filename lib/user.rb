@@ -1,6 +1,4 @@
 class User < ActiveRecord::Base
-	has_many :stat
-	validates_uniqueness_of :name
 
 	def last_game
 		Stat.order(created: :desc).first

@@ -4,7 +4,6 @@ class Stat < ActiveRecord::Migration
   		s.integer "player_x_id"
   		s.integer "wins"
   		s.integer "losses"
-  		s.
   		s.datetime "created"
   	end
   end
