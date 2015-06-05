@@ -1,15 +1,20 @@
+require 'pry'
 require './db/setup'
 require './lib/all'
 
-# class Player
-#   attr_reader :symbol, :name
+class Person
+  attr_reader :symbol, :name
 
-#   def initialize symbol
-#     @symbol = symbol
-#     print "Player #{symbol}! What is your name? "
-#     @name = gets.chomp
-#   end
-# end
+  def initialize symbol, name=nil
+    @symbol = symbol
+    print "Player #{symbol}! What is your name? "
+    @name = name || gets.chomp
+  end
+
+  def store_user
+    User.where(name: name).first_or_create!
+  end
+end
 
 class TicTacToe
   attr_reader :current_player
@@ -66,6 +71,20 @@ class TicTacToe
     return nil # no winner yet
   end
 
+  def winner_storage
+    if winner == :x
+      winner = User.where(name: @player_x.name).first
+      loser = User.where(name: @player_o.name).first
+    elsif winner == :o
+      winner = User.where(name: @player_o.name).first
+      loser = User.where(name: @player_x.name).first
+    else
+      nil
+    end
+    binding.pry
+    Game.create(winner_id: winner.id, loser_id: loser.id)
+  end
+
   def display_board
     "#{display_row(1,2,3)}\n#{display_row(4,5,6)}\n#{display_row(7,8,9)}"
   end
@@ -80,6 +99,7 @@ class TicTacToe
   end
 
   def toggle_players
+
     if @current_player == @player_x
       @current_symbol = :o
       @current_player = @player_o
@@ -90,13 +110,15 @@ class TicTacToe
   end
 end
 
-human = User.make_user
-computer = User.make_user
+human = Person.new :x, "Shoe"
+computer = Person.new :o, "Cup"
+human.store_user
+computer.store_user
 ttt = TicTacToe.new human, computer
 
 until ttt.over?
   puts ttt.display_board
-  print "#{ttt.current_player.name} - where would you like to play? "
+  print "#{ttt.current_player} - where would you like to play? "
 
   move = gets.chomp
   ttt.take_move move
@@ -104,14 +126,11 @@ end
 
 if ttt.winner == :x
   puts "#{ttt.winner} wins!"
-  human.stats.wins += 1
 elsif ttt.winner == :o
-  puts "#{ttt.winner} wins! You lose!"
-  human.stats.losses += 1
+  puts "#{ttt.winner} wins!"
 else  
   puts "It's a draw"
-  human.stats.draws += 1
 end
-human.save
 
-puts "You've won #{player.stats.wins} games, lost #{player.stats.losses} games, and tied with the computer #{human.stats.draws} times."
+ttt.winner_storage
+
